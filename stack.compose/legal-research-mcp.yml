@@ -44,7 +44,7 @@ services:
         condition: service_started
     environment:
       LEGAL_RESEARCH_MCP_PORT: 8130
-      LEGAL_RESEARCH_POSTGRES_DSN: postgresql://legal_research:${POSTGRES_LEGAL_RESEARCH_PASSWORD}@postgres-ssd:5432/webservices
+      LEGAL_RESEARCH_POSTGRES_DSN: jdbc:postgresql://postgres-ssd:5432/webservices?user=legal_research&password=${POSTGRES_LEGAL_RESEARCH_PASSWORD}
       LEGAL_RESEARCH_OPENSEARCH_URL: http://opensearch:9200
       LEGAL_RESEARCH_OPENSEARCH_USERNAME: admin
       LEGAL_RESEARCH_OPENSEARCH_PASSWORD: ${OPENSEARCH_ADMIN_PASSWORD}
