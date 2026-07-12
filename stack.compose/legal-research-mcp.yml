@@ -64,6 +64,8 @@ services:
 
   legal-corpus-creator:
     image: webservices/legal-corpus-creator:local-build
+    x-webservices-systemd:
+      timeoutStartSec: 7200
     build:
       context: .
       dockerfile: ./stack.containers/legal-corpus-creator/Dockerfile
