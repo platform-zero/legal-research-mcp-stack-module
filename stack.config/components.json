@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "defaultComponents": [],
+  "components": {
+    "legal-research-mcp": {
+      "name": "Australian legislation research",
+      "description": "Current Australian primary and secondary legislation through a private MCP service.",
+      "dependencies": ["core", "opensearch"],
+      "composeFiles": ["legal-research-mcp.yml"]
+    },
+    "full": {
+      "name": "Full platform",
+      "description": "Full platform with Australian legislation research instead of the retired generic ingestion pipeline.",
+      "dependencies": ["apps", "autobattler", "forgejo-runner", "legal-research-mcp", "observability", "progression", "qbittorrent", "tas-dashboard"],
+      "composeFiles": []
+    }
+  }
+}

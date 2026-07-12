@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "legal-research-mcp",
+  "repo": "legal-research-mcp-stack-module",
+  "runtimeId": "legal-research-mcp",
+  "lifecycle": "active",
+  "dependencies": ["stack-foundation"],
+  "runtimeDependencies": ["stack-foundation", "postgres-ssd", "opensearch", "keycloak"],
+  "contracts": ["module-contract"],
+  "smoke": "external-only",
+  "smokeUnsupportedReason": "requires deployed PostgreSQL, OpenSearch, Keycloak, and the owned corpus creator",
+  "overlays": [
+    "stack.compose/legal-research-mcp.yml",
+    "stack.config/components.json",
+    "stack.containers/legal-research-mcp/Dockerfile",
+    "stack.kotlin/legal-research-mcp/build.gradle.kts",
+    "stack.kotlin/legal-research-mcp/src/main/kotlin/org/webservices/legalresearch/Authentication.kt",
+    "stack.kotlin/legal-research-mcp/src/main/kotlin/org/webservices/legalresearch/LegislationRepository.kt",
+    "stack.kotlin/legal-research-mcp/src/main/kotlin/org/webservices/legalresearch/Main.kt",
+    "stack.kotlin/legal-research-mcp/src/main/kotlin/org/webservices/legalresearch/McpProtocol.kt",
+    "stack.kotlin/legal-research-mcp/src/test/kotlin/org/webservices/legalresearch/McpProtocolTest.kt"
+  ],
+  "sourceRepo": "legal-research-mcp",
+  "testAssets": []
+}
