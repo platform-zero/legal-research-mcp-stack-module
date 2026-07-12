@@ -16,11 +16,8 @@ services:
       - |
         psql -h postgres-ssd -U ${POSTGRES_ADMIN_USER} -d webservices -v ON_ERROR_STOP=1 \
           -v legal_password='${POSTGRES_LEGAL_RESEARCH_PASSWORD}' <<'SQL'
-        DO $$ BEGIN
-          IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'legal_research') THEN
-            CREATE ROLE legal_research LOGIN PASSWORD :'legal_password';
-          END IF;
-        END $$;
+        SELECT format('CREATE ROLE legal_research LOGIN PASSWORD %L', :'legal_password')
+        WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'legal_research') \gexec
         GRANT CONNECT ON DATABASE webservices TO legal_research;
         GRANT CREATE ON DATABASE webservices TO legal_research;
         SQL
