@@ -196,6 +196,32 @@ class Creator:
             entries = await scraper.get_index(req),
             when_indexed = datetime.now().timestamp(),
         )
+
+    async def _try_get_index(self, scraper: Scraper, req: Request) -> tuple[str, Entries] | None:
+        """Retrieve a document index without allowing one bad source page to abort the whole corpus update."""
+
+        try:
+            return await self._get_index(scraper, req)
+
+        except Exception as e:
+            warning(
+                f"Skipping document index request for source '{scraper.source}' after an unrecoverable error: "
+                f"{e!r}. Request: {req}"
+            )
+            return None
+
+    async def _try_get_doc(self, scraper: Scraper, entry) -> object | None:
+        """Retrieve a document without allowing one bad document to abort the whole corpus update."""
+
+        try:
+            return await scraper.get_doc(entry)
+
+        except Exception as e:
+            warning(
+                f"Skipping document '{entry.version_id}' from source '{scraper.source}' after an unrecoverable error: "
+                f"{e!r}. Request: {entry.request}"
+            )
+            return None
         
     async def create(self) -> None:
         """Update the Corpus."""
@@ -233,8 +259,13 @@ class Creator:
                     index_files = {source : stack.enter_context(open(os.path.join(self.index_dir, f'{source}.jsonl'), 'ab')) for source in sources_with_unindexed_indices}
                     
                     # Append requests, entries and the time they were indexed to the sources' index files as they are indexed.
-                    for source_index in tqdm_asyncio.as_completed([self._get_index(scraper, req) for scraper, req in unindexed_index_reqs]):
-                        source, index = await source_index
+                    for source_index in tqdm_asyncio.as_completed([self._try_get_index(scraper, req) for scraper, req in unindexed_index_reqs]):
+                        result = await source_index
+
+                        if result is None:
+                            continue
+
+                        source, index = result
                         
                         index_files[source].write(encoder(index))
                         index_files[source].write(b'\n')
@@ -302,7 +333,7 @@ class Creator:
             console.print('\nAdding documents to the Corpus.', style='light_cyan1 bold')
             
             with open(self.corpus_path, 'ab') as f:
-                for doc in tqdm_asyncio.as_completed([scraper.get_doc(entry) for scraper, entry in missing_entries]):
+                for doc in tqdm_asyncio.as_completed([self._try_get_doc(scraper, entry) for scraper, entry in missing_entries]):
                     doc = await doc
 
                     if doc:
