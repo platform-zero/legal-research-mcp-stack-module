@@ -10,6 +10,7 @@
   "overlays": [
     "stack.compose/legal-research-mcp.yml",
     "stack.config/components.json",
+    "stack.config/service-contracts.json",
     "stack.containers/legal-research-mcp/Dockerfile",
     "stack.kotlin/legal-research-mcp/build.gradle.kts",
     "stack.kotlin/legal-research-mcp/src/main/kotlin/org/webservices/legalresearch/Authentication.kt",

@@ -1,0 +1,79 @@
+{
+  "contractVersion": 1,
+  "components": {
+    "legal-research-mcp": {
+      "name": "Australian Legislation Research",
+      "description": "Private MCP service for current Australian primary and secondary legislation lookup.",
+      "moduleType": "capability",
+      "primaryHost": "legal-research-mcp",
+      "routes": [],
+      "auth": {
+        "mode": "bearer_token"
+      },
+      "rbac": {
+        "groups": [
+          "admins",
+          "operators",
+          "agents"
+        ]
+      },
+      "state": {
+        "mode": "volumes",
+        "stores": [
+          "postgres",
+          "opensearch",
+          "australian_legislation_data"
+        ]
+      },
+      "backup": {
+        "policy": "kopia",
+        "targets": [
+          "postgres",
+          "opensearch_data",
+          "australian_legislation_data"
+        ]
+      },
+      "restore": {
+        "drills": [
+          "legislation-citation-query",
+          "corpus-freshness-check"
+        ]
+      },
+      "observability": {
+        "health": true,
+        "logs": true,
+        "metrics": true
+      },
+      "evidence": {
+        "expectations": [
+          "legal_research.health",
+          "legal_research.citation_lookup",
+          "legal_research.corpus_freshness"
+        ]
+      },
+      "screenshots": [],
+      "portal": {
+        "visible": false,
+        "category": "Knowledge",
+        "profiles": [
+          "operator",
+          "developer"
+        ],
+        "description": "Backend MCP service for Australian legislation research."
+      },
+      "slo": {
+        "availability": "98.0%",
+        "latencyMs": 3000
+      },
+      "access": {
+        "offboarding": "keycloak_group_removal",
+        "owner": "knowledge"
+      },
+      "artifacts": {
+        "json": [
+          "reports/legal-research-mcp.json"
+        ]
+      }
+    }
+  }
+}
