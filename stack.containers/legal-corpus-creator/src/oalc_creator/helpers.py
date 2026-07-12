@@ -1,6 +1,8 @@
 import re
 import asyncio
 import itertools
+import os
+import tempfile
 
 from typing import Any, Callable, Iterable, Generator
 from datetime import datetime
@@ -71,9 +73,23 @@ def log(func: Callable) -> Callable:
 
 def save_json(path: str, content: Any, encoder: Callable[[Any], bytes] = _json_encoder) -> None:
     """Save content as a json file."""
-    
-    with open(path, 'wb') as writer:
-        writer.write(encoder(content))
+
+    directory = os.path.dirname(path) or '.'
+    os.makedirs(directory, exist_ok=True)
+    fd, temporary_path = tempfile.mkstemp(prefix=f'.{os.path.basename(path)}.', suffix='.tmp', dir=directory)
+
+    try:
+        with os.fdopen(fd, 'wb') as writer:
+            writer.write(encoder(content))
+            writer.flush()
+            os.fsync(writer.fileno())
+
+        os.replace(temporary_path, path)
+
+    except Exception:
+        with suppress(FileNotFoundError):
+            os.unlink(temporary_path)
+        raise
 
 def load_json(path: str, decoder: Callable[[bytes], Any] = orjson.loads) -> Any:
     """Load a json file."""

@@ -143,7 +143,12 @@ class Creator:
         
         # Otherwise, load the saved requests.
         else:
-            reqs = load_json(path, decoder = requests_decoder)
+            try:
+                reqs = load_json(path, decoder = requests_decoder)
+
+            except (DecodeError, OSError, ValueError):
+                pathlib.Path.unlink(path, missing_ok=True)
+                save_json(path, reqs := await scraper.get_index_reqs())
         
         return reqs
     
