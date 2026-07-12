@@ -34,13 +34,17 @@ class Request(msgspec.Struct, frozen = True):
     @property
     def args(self) -> dict:
         """Convert the request into arguments for `aiohttp.ClientSession.request`."""
-        
-        return {
+
+        args = {
             'method' : self.method.upper(),
             'url' : self.path,
-            'data' : self.data,
-            'headers' : self.headers,
+            'headers' : dict(self.headers),
         }
+
+        if self.data:
+            args['data'] = dict(self.data)
+
+        return args
 
 requests_decoder: Callable[[dict], set[Request]] = msgspec.json.Decoder(set[Request]).decode
 

@@ -10,10 +10,19 @@ from contextlib import suppress
 import ftfy
 import orjson
 import msgspec
+from frozndict import frozendict
 
 from rich.console import Console
 
 console = Console()
+
+def _json_enc_hook(value: Any) -> Any:
+    if isinstance(value, frozendict):
+        return dict(value)
+
+    raise TypeError(f'Unsupported JSON value: {type(value)!r}')
+
+_json_encoder = msgspec.json.Encoder(enc_hook=_json_enc_hook).encode
 
 NON_STANDARD_CONTROL_CHARS_RE = re.compile(r'[' + re.escape('\a\b\f\r\v') + ']')
 START_OF_TEXT_THAT_IS_ONLY_WHITESPACE_FOLLOWED_BY_A_NEWLINE_RE = re.compile(r'^\s*\n')
@@ -60,7 +69,7 @@ def log(func: Callable) -> Callable:
     
     return async_wrapper if asyncio.iscoroutinefunction(func) else sync_wrapper
 
-def save_json(path: str, content: Any, encoder: Callable[[Any], bytes] = msgspec.json.encode) -> None:
+def save_json(path: str, content: Any, encoder: Callable[[Any], bytes] = _json_encoder) -> None:
     """Save content as a json file."""
     
     with open(path, 'wb') as writer:
@@ -78,7 +87,7 @@ def load_jsonl(path: str, decoder: Callable[[bytes], Any] = orjson.loads) -> lis
     with open(path, 'rb') as file:
         return [decoder(json) for json in file]
 
-def save_jsonl(path: str, content: list, encoder: Callable[[Any], bytes] = msgspec.json.encode) -> None:
+def save_jsonl(path: str, content: list, encoder: Callable[[Any], bytes] = _json_encoder) -> None:
     """Save a list of objects as a jsonl file."""
     
     with open(path, 'wb') as file:
