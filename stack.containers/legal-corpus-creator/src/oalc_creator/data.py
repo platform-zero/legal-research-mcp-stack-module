@@ -5,6 +5,7 @@ import datetime
 from io import BytesIO
 from typing import Callable
 from functools import cached_property
+from collections.abc import Mapping
 
 import orjson
 import msgspec
@@ -12,7 +13,13 @@ import msgspec
 from .helpers import warning, clean_text
 from frozndict import frozendict
 
-encoder = msgspec.json.Encoder().encode
+def _json_enc_hook(value):
+    if isinstance(value, Mapping) or value.__class__.__name__ in {'FrozenDict', 'frozendict'}:
+        return dict(value)
+
+    raise TypeError(f'Unsupported JSON value: {type(value)!r}')
+
+encoder = msgspec.json.Encoder(enc_hook=_json_enc_hook).encode
 
 class Request(msgspec.Struct, frozen = True):
     """A request."""

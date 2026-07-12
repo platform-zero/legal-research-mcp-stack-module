@@ -5,6 +5,7 @@ import os
 import tempfile
 
 from typing import Any, Callable, Iterable, Generator
+from collections.abc import Mapping
 from datetime import datetime
 from textwrap import dedent
 from contextlib import suppress
@@ -19,7 +20,7 @@ from rich.console import Console
 console = Console()
 
 def _json_enc_hook(value: Any) -> Any:
-    if isinstance(value, frozendict):
+    if isinstance(value, Mapping) or value.__class__.__name__ in {'FrozenDict', 'frozendict'}:
         return dict(value)
 
     raise TypeError(f'Unsupported JSON value: {type(value)!r}')
