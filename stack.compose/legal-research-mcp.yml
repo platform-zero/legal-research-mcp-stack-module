@@ -36,7 +36,6 @@ services:
       - caddy
       - postgres
       - opensearch
-      - keycloak
     depends_on:
       postgres-ssd-bootstrap:
         condition: service_completed_successfully
