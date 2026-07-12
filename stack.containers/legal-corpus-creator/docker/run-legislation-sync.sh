@@ -12,7 +12,9 @@ export TESSDATA_PREFIX="${TESSDATA_PREFIX:-/usr/share/tesseract-ocr/5/tessdata}"
 
 mkdir -p "$(dirname "$LEGAL_CORPUS_OUTPUT")" "$LEGAL_CORPUS_DATA_DIR"
 temporary_output="${LEGAL_CORPUS_OUTPUT}.next"
-rm -f "$temporary_output"
+# Keep an interrupted temporary corpus so reruns can repair/deduplicate it and
+# add only missing documents instead of restarting a multi-hour scrape.
+touch "$temporary_output"
 
 mkoalc \
   --sources federal_register_of_legislation,nsw_legislation,queensland_legislation,south_australian_legislation,western_australian_legislation,tasmanian_legislation \
