@@ -4,9 +4,18 @@
   "repo": "legal-research-mcp-stack-module",
   "runtimeId": "legal-research-mcp",
   "lifecycle": "active",
-  "dependencies": ["stack-foundation"],
-  "runtimeDependencies": ["stack-foundation", "postgres-ssd", "opensearch", "keycloak"],
-  "contracts": ["module-contract"],
+  "dependencies": [
+    "stack-foundation"
+  ],
+  "runtimeDependencies": [
+    "stack-foundation",
+    "postgres-ssd",
+    "opensearch",
+    "keycloak"
+  ],
+  "contracts": [
+    "module-contract"
+  ],
   "smoke": "external-only",
   "smokeUnsupportedReason": "requires deployed PostgreSQL, OpenSearch, Keycloak, and the owned corpus creator",
   "overlays": [
@@ -14,6 +23,7 @@
     "stack.config/components.json",
     "stack.config/service-contracts.json",
     "stack.containers/legal-research-mcp/Dockerfile",
+    "stack.containers/legal-corpus-creator",
     "stack.kotlin/legal-research-mcp/build.gradle.kts",
     "stack.kotlin/legal-research-mcp/src/main/kotlin/org/webservices/legalresearch/Authentication.kt",
     "stack.kotlin/legal-research-mcp/src/main/kotlin/org/webservices/legalresearch/LegislationRepository.kt",

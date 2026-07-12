@@ -68,8 +68,8 @@ services:
   legal-corpus-creator:
     image: webservices/legal-corpus-creator:local-build
     build:
-      context: https://github.com/geraldsummers/open-australian-legal-corpus-creator.git#79365f09d3dcc60f9e07622d28beee41f6fd8de6
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./stack.containers/legal-corpus-creator/Dockerfile
     container_name: legal-corpus-creator
     restart: "no"
     networks:
