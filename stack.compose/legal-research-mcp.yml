@@ -10,6 +10,8 @@ services:
         condition: service_completed_successfully
     environment:
       PGPASSWORD: ${POSTGRES_ADMIN_PASSWORD}
+      POSTGRES_ADMIN_USER: ${POSTGRES_ADMIN_USER}
+      POSTGRES_LEGAL_RESEARCH_PASSWORD: ${POSTGRES_LEGAL_RESEARCH_PASSWORD}
     command:
       - bash
       - -ec
@@ -61,29 +63,6 @@ services:
       timeout: 5s
       retries: 12
       start_period: 30s
-
-  legal-corpus-creator:
-    image: webservices/legal-corpus-creator:local-build
-    x-webservices-systemd:
-      timeoutStartSec: 7200
-    build:
-      context: .
-      dockerfile: ./stack.containers/legal-corpus-creator/Dockerfile
-    container_name: legal-corpus-creator
-    restart: "no"
-    networks:
-      - internet
-      - caddy
-    depends_on:
-      legal-research-mcp:
-        condition: service_healthy
-    environment:
-      LEGAL_CORPUS_DATA_DIR: /data/creator
-      LEGAL_CORPUS_OUTPUT: /data/corpus/current.jsonl
-      LEGAL_INGESTION_TRIGGER_URL: http://legal-research-mcp:8130/internal/import-corpus
-      LEGAL_INGESTION_SHARED_TOKEN: ${LEGAL_RESEARCH_INGESTION_TOKEN:?LEGAL_RESEARCH_INGESTION_TOKEN is required}
-    volumes:
-      - australian_legislation_data:/data
 
 volumes:
   australian_legislation_data:

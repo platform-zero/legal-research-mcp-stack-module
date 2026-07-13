@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jre
+FROM docker.io/library/eclipse-temurin:21-jre
 
 RUN apt-get update && apt-get install -y --no-install-recommends wget && rm -rf /var/lib/apt/lists/*
 RUN groupadd -r legalresearch && useradd -r -g legalresearch legalresearch
