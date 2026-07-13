@@ -30,7 +30,6 @@
         "forgejo-runner",
         "legal-research-mcp",
         "observability",
-        "progression",
         "qbittorrent"
       ],
       "composeFiles": []
