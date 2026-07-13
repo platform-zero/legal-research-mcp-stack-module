@@ -5,19 +5,34 @@
     "legal-research-mcp": {
       "name": "Australian legislation research",
       "description": "Current Australian primary and secondary legislation through a private MCP service.",
-      "dependencies": ["search"],
-      "composeFiles": ["legal-research-mcp.yml"]
+      "dependencies": [
+        "search"
+      ],
+      "composeFiles": [
+        "legal-research-mcp.yml"
+      ]
     },
     "search": {
       "name": "Text search backend",
       "description": "OpenSearch text search without the retired vector inference stack.",
-      "dependencies": ["core"],
-      "composeFiles": ["opensearch.yml"]
+      "dependencies": [
+        "core"
+      ],
+      "composeFiles": [
+        "opensearch.yml"
+      ]
     },
     "full": {
       "name": "Full platform",
       "description": "Full platform with Australian legislation research instead of the retired generic ingestion pipeline.",
-      "dependencies": ["apps", "autobattler", "forgejo-runner", "legal-research-mcp", "observability", "progression", "qbittorrent", "tas-dashboard"],
+      "dependencies": [
+        "apps",
+        "forgejo-runner",
+        "legal-research-mcp",
+        "observability",
+        "progression",
+        "qbittorrent"
+      ],
       "composeFiles": []
     }
   }
