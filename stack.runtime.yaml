@@ -1,0 +1,75 @@
+---
+schemaVersion: 1
+module: "legal-research-mcp"
+target: "apps"
+services:
+  legal-research-db-bootstrap:
+    image: "timescale/timescaledb@sha256:0af03ecf697825f6ddae76fd275d16bf46007bed6d00eb3d754779cb7db96fa6"
+    containerName: "legal-research-db-bootstrap"
+    lifecycle: "oneshot"
+    updatePolicy: "pinned"
+    placement: "rootful"
+    dependencies:
+      postgres-ssd-bootstrap: "completed"
+    environment:
+      PGPASSWORD: "${POSTGRES_ADMIN_PASSWORD}"
+      POSTGRES_ADMIN_USER: "${POSTGRES_ADMIN_USER}"
+      POSTGRES_LEGAL_RESEARCH_PASSWORD: "${POSTGRES_LEGAL_RESEARCH_PASSWORD}"
+    networks:
+    - "postgres"
+    command:
+    - "bash"
+    - "-ec"
+    - "psql -h postgres-ssd -U ${POSTGRES_ADMIN_USER} -d webservices -v ON_ERROR_STOP=1\
+      \ \\\n  -v legal_password='${POSTGRES_LEGAL_RESEARCH_PASSWORD}' <<'SQL'\nSELECT\
+      \ format('CREATE ROLE legal_research LOGIN PASSWORD %L', :'legal_password')\n\
+      WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'legal_research') \\\
+      gexec\nGRANT CONNECT ON DATABASE webservices TO legal_research;\nGRANT CREATE\
+      \ ON DATABASE webservices TO legal_research;\nSQL\n"
+    restart: "no"
+  legal-research-mcp:
+    image: "webservices/legal-research-mcp:local-build"
+    build:
+      context: "."
+      containerfile: "./stack.containers/legal-research-mcp/Dockerfile"
+    containerName: "legal-research-mcp"
+    lifecycle: "daemon"
+    updatePolicy: "pinned"
+    placement: "rootful"
+    dependencies:
+      postgres-ssd-bootstrap: "completed"
+      legal-research-db-bootstrap: "completed"
+      opensearch: "healthy"
+      keycloak: "started"
+    environment:
+      LEGAL_RESEARCH_MCP_PORT: 8130
+      LEGAL_RESEARCH_POSTGRES_DSN: "jdbc:postgresql://postgres-ssd:5432/webservices?user=legal_research&password=${POSTGRES_LEGAL_RESEARCH_PASSWORD}"
+      LEGAL_RESEARCH_OPENSEARCH_URL: "http://opensearch:9200"
+      LEGAL_RESEARCH_OPENSEARCH_USERNAME: "admin"
+      LEGAL_RESEARCH_OPENSEARCH_PASSWORD: "${OPENSEARCH_ADMIN_PASSWORD}"
+      LEGAL_RESEARCH_OIDC_USERINFO_URL: "http://keycloak:8080/realms/webservices/protocol/openid-connect/userinfo"
+      LEGAL_RESEARCH_REQUIRED_ROLE: "legal-research"
+      LEGAL_RESEARCH_INDEX: "australian_legislation"
+      LEGAL_RESEARCH_CORPUS_PATH: "/corpus/current.jsonl"
+      LEGAL_RESEARCH_INGESTION_TOKEN: "${LEGAL_RESEARCH_INGESTION_TOKEN:?LEGAL_RESEARCH_INGESTION_TOKEN\
+        \ is required}"
+    networks:
+    - "caddy"
+    - "postgres"
+    - "opensearch"
+    volumes:
+    - "australian_legislation_data:/corpus:ro"
+    health:
+      test:
+      - "CMD-SHELL"
+      - "wget --quiet --tries=1 --timeout=3 -O- http://127.0.0.1:8130/health | grep\
+        \ -q ok"
+      interval: "15s"
+      timeout: "5s"
+      retries: 12
+      start_period: "30s"
+    restart: "unless-stopped"
+networks: {}
+volumes:
+  australian_legislation_data:
+    hostPath: "${STACK_VOLUME_ROOT}/australian_legislation_data"
