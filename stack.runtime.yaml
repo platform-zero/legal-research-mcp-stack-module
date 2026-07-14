@@ -31,7 +31,7 @@ services:
     image: "webservices/legal-research-mcp:local-build"
     build:
       context: "."
-      containerfile: "./stack.containers/legal-research-mcp/Dockerfile"
+      containerfile: "./stack.containers/legal-research-mcp/Containerfile"
     containerName: "legal-research-mcp"
     lifecycle: "daemon"
     updatePolicy: "pinned"

@@ -21,7 +21,7 @@
   "overlays": [
     "stack.config/components.json",
     "stack.config/service-contracts.json",
-    "stack.containers/legal-research-mcp/Dockerfile",
+    "stack.containers/legal-research-mcp/Containerfile",
     "stack.kotlin/legal-research-mcp/build.gradle.kts",
     "stack.kotlin/legal-research-mcp/src/main/kotlin/org/webservices/legalresearch/Authentication.kt",
     "stack.kotlin/legal-research-mcp/src/main/kotlin/org/webservices/legalresearch/LegislationRepository.kt",
