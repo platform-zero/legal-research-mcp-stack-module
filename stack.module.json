@@ -19,7 +19,6 @@
   "smoke": "external-only",
   "smokeUnsupportedReason": "requires deployed PostgreSQL, OpenSearch, Keycloak, and the owned corpus creator",
   "overlays": [
-    "stack.compose/legal-research-mcp.yml",
     "stack.config/components.json",
     "stack.config/service-contracts.json",
     "stack.containers/legal-research-mcp/Dockerfile",
