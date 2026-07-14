@@ -8,7 +8,7 @@
       "dependencies": [
         "search"
       ],
-      "composeFiles": [
+      "runtimeFiles": [
         "legal-research-mcp.yml"
       ]
     },
@@ -18,7 +18,7 @@
       "dependencies": [
         "core"
       ],
-      "composeFiles": [
+      "runtimeFiles": [
         "opensearch.yml"
       ]
     },
@@ -32,7 +32,7 @@
         "observability",
         "qbittorrent"
       ],
-      "composeFiles": []
+      "runtimeFiles": []
     }
   }
 }
