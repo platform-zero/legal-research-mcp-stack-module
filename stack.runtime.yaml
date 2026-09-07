@@ -22,7 +22,7 @@ services:
     command:
     - "bash"
     - "-ec"
-    - "psql -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -U ${POSTGRES_ADMIN_USER} -d webservices -v ON_ERROR_STOP=1\
+    - "until pg_isready -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -U ${POSTGRES_ADMIN_USER} -d webservices; do sleep 2; done\npsql -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -U ${POSTGRES_ADMIN_USER} -d webservices -v ON_ERROR_STOP=1\
       \ \\\n  -v legal_password='${POSTGRES_LEGAL_RESEARCH_PASSWORD}' <<'SQL'\nSELECT\
       \ format('CREATE ROLE legal_research LOGIN PASSWORD %L', :'legal_password')\n\
       WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'legal_research') \\\
