@@ -22,12 +22,22 @@ services:
     command:
     - "bash"
     - "-ec"
-    - "until pg_isready -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -U ${POSTGRES_ADMIN_USER} -d webservices; do sleep 2; done\npsql -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -U ${POSTGRES_ADMIN_USER} -d webservices -v ON_ERROR_STOP=1\
-      \ \\\n  -v legal_password='${POSTGRES_LEGAL_RESEARCH_PASSWORD}' <<'SQL'\nSELECT\
-      \ format('CREATE ROLE legal_research LOGIN PASSWORD %L', :'legal_password')\n\
-      WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'legal_research') \\\
-      gexec\nGRANT CONNECT ON DATABASE webservices TO legal_research;\nGRANT CREATE\
-      \ ON DATABASE webservices TO legal_research;\nSQL\n"
+    - |
+      until pg_isready -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -U ${POSTGRES_ADMIN_USER} -d webservices; do sleep 2; done
+      for attempt in 1 2 3 4 5 6; do
+        if psql -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -U ${POSTGRES_ADMIN_USER} -d webservices -v ON_ERROR_STOP=1 \
+          -v legal_password='${POSTGRES_LEGAL_RESEARCH_PASSWORD}' <<'SQL'
+      SELECT format('CREATE ROLE legal_research LOGIN PASSWORD %L', :'legal_password')
+      WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'legal_research') \gexec
+      GRANT CONNECT ON DATABASE webservices TO legal_research;
+      GRANT CREATE ON DATABASE webservices TO legal_research;
+      SQL
+        then
+          exit 0
+        fi
+        if [ "$attempt" -eq 6 ]; then exit 1; fi
+        sleep 3
+      done
     restart: "no"
   legal-research-mcp:
     image: "webservices/legal-research-mcp:local-build"
