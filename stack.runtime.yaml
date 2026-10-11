@@ -25,10 +25,11 @@ services:
     - |
       until pg_isready -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -U ${POSTGRES_ADMIN_USER} -d webservices; do sleep 2; done
       for attempt in 1 2 3 4 5 6; do
-        if psql -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -U ${POSTGRES_ADMIN_USER} -d webservices -v ON_ERROR_STOP=1 \
-          -v legal_password='${POSTGRES_LEGAL_RESEARCH_PASSWORD}' <<'SQL'
+        if psql -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -U ${POSTGRES_ADMIN_USER} -d webservices -v ON_ERROR_STOP=1 <<'SQL'
+      \getenv legal_password POSTGRES_LEGAL_RESEARCH_PASSWORD
       SELECT format('CREATE ROLE legal_research LOGIN PASSWORD %L', :'legal_password')
       WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'legal_research') \gexec
+      SELECT format('ALTER ROLE legal_research LOGIN PASSWORD %L', :'legal_password') \gexec
       GRANT CONNECT ON DATABASE webservices TO legal_research;
       GRANT CREATE ON DATABASE webservices TO legal_research;
       SQL
