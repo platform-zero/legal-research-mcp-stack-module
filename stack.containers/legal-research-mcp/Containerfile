@@ -1,9 +1,16 @@
+FROM docker.io/library/eclipse-temurin:21-jdk@sha256:3e3c176ffed168beb42c607be9bc1639b466cf00261a0fb04425562c9d0c5c2b AS builder
+WORKDIR /build
+COPY gradlew build.gradle.kts settings.gradle.kts gradle.properties ./
+COPY gradle ./gradle
+COPY stack.kotlin ./stack.kotlin
+RUN chmod +x gradlew && ./gradlew --no-daemon --max-workers=2 -Pkotlin.compiler.execution.strategy=in-process :legal-research-mcp:shadowJar
+
 FROM docker.io/library/eclipse-temurin:21-jre
 
 RUN apt-get update && apt-get install -y --no-install-recommends wget && rm -rf /var/lib/apt/lists/*
 RUN groupadd -r legalresearch && useradd -r -g legalresearch legalresearch
 WORKDIR /app
-COPY stack.kotlin/legal-research-mcp/build/libs/legal-research-mcp-1.0-SNAPSHOT-all.jar /app/app.jar
+COPY --from=builder /build/stack.kotlin/legal-research-mcp/build/libs/legal-research-mcp-1.0-SNAPSHOT-all.jar /app/app.jar
 USER legalresearch
 EXPOSE 8130
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
